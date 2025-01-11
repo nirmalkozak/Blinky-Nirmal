@@ -8,11 +8,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.DriveTrainFalconFX;
-import frc.robot.subsystems.DriveTrainVictorSP;
+import frc.robot.Robot.RobotRunType;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.IntakeVictorSP;
 import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.SparkMax;
+import frc.robot.subsystems.SparkMaxTest;
+import frc.robot.subsystems.intakeIO;
+import frc.robot.subsystems.DriveTrainFolder.DriveTrainFalconFX;
+import frc.robot.subsystems.DriveTrainFolder.DriveTrainVictorSP;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,22 +26,32 @@ import frc.robot.subsystems.SparkMax;
 public class RobotContainer {
     /* Controllers */
     private final CommandXboxController driver = new CommandXboxController(Constants.driverID);
-    private final CommandXboxController operator = new CommandXboxController(Constants.operatorID);
+    // private final CommandXboxController operator = new
+    // CommandXboxController(Constants.operatorID);
 
     // Initialize AutoChooser Sendable
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     /* Subsystems */
-    Intake intake = new Intake();
+    private Intake intake;
     LEDs leds = new LEDs(9, 60);
     DriveTrainVictorSP drive = new DriveTrainVictorSP();
     DriveTrainFalconFX driveFX = new DriveTrainFalconFX();
-    SparkMax driveSpark = new SparkMax();
+    SparkMaxTest driveSpark = new SparkMaxTest();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
+    public RobotContainer(RobotRunType runtimeType) {
+        switch (runtimeType) {
+            case kReal:
+                intake = new Intake(new IntakeVictorSP());
+                break;
+
+            default:
+                intake = new Intake(new intakeIO() {});
+                break;
+        }
         SmartDashboard.putData("Choose Auto: ", autoChooser);
         autoChooser.setDefaultOption("Wait 1 Second", "wait");
         leds.setDefaultCommand(leds.setAllianceColor());
@@ -55,12 +68,12 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        driver.a().whileTrue(intake.intakeCommand()).whileTrue(leds.setIntakeColor());
+        // driver.a().whileTrue(intake.Intake(1)).whileTrue(leds.setIntakeColor());
         driver.x().whileTrue(driveFX.otherMotorCommand());
         driver.y().whileTrue(driveSpark.SparkMaxCommand());
         // driver.a().whileTrue(leds.setIntakeColor());
-        // driver.a().whileTrue(intake.otherMotorCommand());
-        driver.b().whileTrue(intake.outtakeCommand());
+        driver.a().whileTrue(intake.intakeCMD(0.7));
+        // driver.b().whileTrue(intake.outtakeCommand(-1));
     }
 
 
